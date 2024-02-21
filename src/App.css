@@ -3,3 +3,10 @@
   margin: 0;
   padding: 0;
 }
+
+.waterLevel {
+  width: 100%;
+  background-color: rgb(2 132 199 / var(--tw-bg-opacity));
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in;
+}
