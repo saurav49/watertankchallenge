@@ -3,16 +3,45 @@ import { WaterLevelType } from "../App";
 
 const WaterTank = ({
   waterIndex,
+  currentWaterLevel,
   waterLevel,
   setWaterLevel,
   setIsBtnPressed,
+  setMakeWaterLevelEqualTo,
 }: {
   waterIndex: number;
-  waterLevel: WaterLevelType;
+  currentWaterLevel: WaterLevelType;
+  waterLevel: WaterLevelType[];
   setWaterLevel: React.Dispatch<React.SetStateAction<WaterLevelType[]>>;
   setIsBtnPressed: React.Dispatch<React.SetStateAction<boolean>>;
+  setMakeWaterLevelEqualTo: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const [intervalId, setIntervalId] = React.useState<number>(0);
+  const [isCalculateMakeWaterLevelEqualTo, setIsCalculateWaterLevelEqualTo] =
+    React.useState<boolean>(false);
+  React.useEffect(() => {
+    if (isCalculateMakeWaterLevelEqualTo) {
+      const sumOfAllWaterLevels = waterLevel
+        .map((level, idx) =>
+          idx === waterIndex
+            ? {
+                [waterIndex]: level[idx] < 400 ? 80 + level[idx] : level[idx],
+              }
+            : { ...level }
+        )
+        .reduce((acc, currValue, idx) => acc + currValue[idx], 0);
+      setMakeWaterLevelEqualTo(sumOfAllWaterLevels / waterLevel.length);
+    }
+    return () => {
+      setIsCalculateWaterLevelEqualTo(false);
+    };
+  }, [
+    isCalculateMakeWaterLevelEqualTo,
+    setMakeWaterLevelEqualTo,
+    waterIndex,
+    waterLevel,
+  ]);
+
   return (
     <div className="flex flex-col items-start gap-4 w-[250px]">
       <button
@@ -23,7 +52,10 @@ const WaterTank = ({
             setWaterLevel((prevState) =>
               prevState.map((level, idx) =>
                 idx === waterIndex
-                  ? { [waterIndex]: 90 + level[idx] }
+                  ? {
+                      [waterIndex]:
+                        level[idx] < 400 ? 80 + level[idx] : level[idx],
+                    }
                   : { ...level }
               )
             );
@@ -33,6 +65,7 @@ const WaterTank = ({
         onMouseUp={() => {
           setIsBtnPressed(false);
           clearInterval(intervalId);
+          setIsCalculateWaterLevelEqualTo(true);
         }}
       >
         Add
@@ -50,12 +83,12 @@ const WaterTank = ({
         Empty
       </button>
 
-      <div className="border-4 border-slate-500 rounded-xl h-[450px] w-full mt-5 flex flex-col-reverse">
+      <div className="border-4 border-slate-500 rounded-xl h-[400px] w-full mt-5 flex flex-col-reverse">
         <div
           className={"waterLevel"}
           id="water"
           style={{
-            height: `${waterLevel[waterIndex]}px`,
+            height: `${currentWaterLevel[waterIndex]}px`,
           }}
         ></div>
       </div>

@@ -14,24 +14,22 @@ function App() {
     }))
   );
   const [isBtnPressed, setIsBtnPressed] = React.useState<boolean>(false);
+  const [makeWaterLevelEqualTo, setMakeWaterLevelEqualTo] =
+    React.useState<number>(0);
   React.useEffect(() => {
     let intervalId = 0;
-    if (waterLevel.some((level, idx) => level[idx] > 0) && !isBtnPressed) {
-      const sumOfAllWaterLevels = waterLevel.reduce(
-        (acc, currValue, idx) => acc + currValue[idx],
-        0
-      );
-      const makeWaterLevelEqualTo = Math.round(
-        sumOfAllWaterLevels / waterLevel.length
-      );
+    if (
+      !waterLevel.every((level, idx) => level[idx] === waterLevel[0][0]) &&
+      !isBtnPressed
+    ) {
       intervalId = setInterval(() => {
         setWaterLevel((prevState) =>
           prevState.map((level, idx) =>
-            level[idx] !== makeWaterLevelEqualTo
-              ? level[idx] < makeWaterLevelEqualTo
-                ? { [idx]: level[idx] + 11.25 }
-                : { [idx]: level[idx] - 11.25 }
-              : level
+            level[idx] === makeWaterLevelEqualTo
+              ? level
+              : level[idx] < makeWaterLevelEqualTo
+              ? { [idx]: level[idx] + 10 }
+              : { [idx]: level[idx] - 10 }
           )
         );
       }, 1000);
@@ -39,7 +37,7 @@ function App() {
     return () => {
       clearInterval(intervalId);
     };
-  }, [waterLevel, isBtnPressed]);
+  }, [waterLevel, isBtnPressed, makeWaterLevelEqualTo]);
 
   return (
     <main className="bg-slate-100 w-screen min-h-screen p-10 flex items-start justify-between">
@@ -48,9 +46,11 @@ function App() {
           <WaterTank
             key={i}
             waterIndex={i}
-            waterLevel={waterLevel[i]}
+            currentWaterLevel={waterLevel[i]}
+            waterLevel={waterLevel}
             setWaterLevel={setWaterLevel}
             setIsBtnPressed={setIsBtnPressed}
+            setMakeWaterLevelEqualTo={setMakeWaterLevelEqualTo}
           />
         );
       })}
